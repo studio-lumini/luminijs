@@ -3,7 +3,7 @@ function PreviousButtonView()
 	this.selectionController = undefined;
 }
 
-PreviousButtonView.prototype = new AbstractView();
+PreviousButtonView._extends(AbstractView);
 
 PreviousButtonView.prototype.init = function(tag)
 {

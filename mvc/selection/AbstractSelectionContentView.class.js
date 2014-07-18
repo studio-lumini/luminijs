@@ -1,7 +1,8 @@
 function AbstractSelectionContentView(){
 	AbstractView.call(this);
 }
-AbstractSelectionContentView.prototype = new AbstractView();
+
+AbstractSelectionContentView._extends(AbstractView);
 
 AbstractSelectionContentView.prototype.destroy = function()
 {
@@ -15,7 +16,8 @@ AbstractSelectionContentView.prototype.unbindAll = function()
 };
 
 AbstractSelectionContentView.prototype.init = function(tag){
-	AbstractView.prototype.init.call(this, tag);
+	AbstractSelectionContentView._super.init.call(this, tag);
+	
 	if (this.id === undefined || this.controller === undefined)
 		throw new Error('Id or controller undefined.');
 	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);

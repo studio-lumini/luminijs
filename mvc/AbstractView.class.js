@@ -6,15 +6,14 @@ function AbstractView()
 	this.parent = undefined;
 }
 
-AbstractView.prototype.destroy = function(){};
+AbstractView._extends(AbstractObject);
 
 AbstractView.prototype.init = function(tag, parent){
+	AbstractView._super.init.call(this, tag, parent);
 	this.parent = parent;
 	if (this.parent && !this.controller)
 		this.controller = this.parent.controller;
-	
-	window.namespaceId = window.namespaceId? window.namespaceId: 1;
-	this.namespaceId = window.namespaceId++;
+
 	this.tag = jQuery(tag);
 };
 

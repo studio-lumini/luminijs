@@ -3,6 +3,8 @@ function SelectionController()
 	this.model = undefined;
 }
 
+SelectionController._extends(AbstractObject);
+
 SelectionController.prototype.destroy = function(){
 	if(this.model !== undefined){
 		this.model.destroy();

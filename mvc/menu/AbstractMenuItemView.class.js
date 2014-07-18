@@ -2,24 +2,24 @@ function AbstractMenuItemView()
 {
 }
 
-AbstractMenuItemView.prototype = new AbstractView();
+AbstractMenuItemView._extends(AbstractView);
 
 AbstractMenuItemView.prototype.destroy = function()
 {
 	if (this.controller != undefined)
 	{
-		jQuery(this.controller.model).unbind(SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, jQuery.proxy(this.onCurrentUpdated, this));
-		jQuery(this.controller.model).unbind(SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, jQuery.proxy(this.onOverUpdated, this));
+		this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
+		this.unbind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
 	}
-	AbstractView.prototype.destroy.call(this);
+	AbstractMenuItemView._super.destroy.call(this);
 };
 
 AbstractMenuItemView.prototype.init = function(tag, parent)
 {
-	AbstractView.prototype.init.call(this, tag, parent);
+	AbstractMenuItemView._super.init.call(this, tag, parent);
 
-	jQuery(this.controller.model).bind(SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, jQuery.proxy(this.onCurrentUpdated, this));
-	jQuery(this.controller.model).bind(SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, jQuery.proxy(this.onOverUpdated, this));
+	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
+	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
 };
 
 //protected
