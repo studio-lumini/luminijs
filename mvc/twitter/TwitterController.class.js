@@ -30,8 +30,8 @@ TwitterController.prototype.login = function()
 {
 	var height = 400;
 	var width = 600;
-	var top = ((window.innerHeight) - height) / 2;
-	var left = ((window.innerWidth) - width) / 2;
+	var top = window.screenTop + (window.innerHeight - height) / 2;
+	var left = window.screenLeft + (window.innerWidth - width) / 2;
 	if(window.name){
 		this.originalWindowName = window.name;
 	}
@@ -82,16 +82,13 @@ TwitterController.prototype.onTweetSuccess = function(result)
 
 TwitterController.prototype.onInterval = function()
 {
-	console.info(this.popup);
-	if(this.popup){
-//		var href = '';
-//		try{
+	//if popup is not closed
+	if (this.popup.top){
+		var href = '';
+		try{
 			var href = this.popup.location.href;
-//		}
-//		catch(e)
-//		{
-//		}
-		console.info(href);
+		}
+		catch(e){}
 
 		if (href && href.indexOf('twitter-light-user/login/success') != -1)
 		{
