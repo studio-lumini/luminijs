@@ -16,11 +16,3 @@ AbstractView.prototype.init = function(tag, parent){
 
 	this.tag = jQuery(tag);
 };
-
-AbstractView.prototype.bind = function(target,event,listener){
-	jQuery(target).bind(event+"."+this.namespaceId, jQuery.proxy(listener, this));
-};
-
-AbstractView.prototype.unbind = function(target,event,listener){
-	jQuery(target).unbind(event+"."+this.namespaceId, jQuery.proxy(listener, this));
-};
