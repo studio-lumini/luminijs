@@ -5,9 +5,9 @@ function PreviousButtonView()
 
 PreviousButtonView._extends(AbstractView);
 
-PreviousButtonView.prototype.init = function(tag)
+PreviousButtonView.prototype.init = function(tag, parent)
 {
-	AbstractView.prototype.init.call(this, tag);
+	AbstractView.prototype.init.call(this, tag, parent);
 
 	this.bind(this.tag, 'click', this.onClick);
 };

@@ -6,17 +6,12 @@ AbstractSelectionContentView._extends(AbstractView);
 
 AbstractSelectionContentView.prototype.destroy = function()
 {
-	this.unbindAll();
-	this.tag.remove();
-};
-
-AbstractSelectionContentView.prototype.unbindAll = function()
-{
 	this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+	AbstractSelectionContentView._super.destroy.call(this);
 };
 
-AbstractSelectionContentView.prototype.init = function(tag){
-	AbstractSelectionContentView._super.init.call(this, tag);
+AbstractSelectionContentView.prototype.init = function(tag, parent){
+	AbstractSelectionContentView._super.init.call(this, tag, parent);
 	
 	if (this.id === undefined || this.controller === undefined)
 		throw new Error('Id or controller undefined.');
