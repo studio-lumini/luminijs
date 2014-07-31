@@ -1,6 +1,6 @@
 function PermutationCodeController(){
 }
-PermutationCodeController.prototype = new CodeController();
+PermutationCodeController._extends(CodeController);
 
 PermutationCodeController.prototype.canPush = function(element) {
 	if(this.model.buffer.length == 0) return true;
