@@ -16,8 +16,6 @@ AbstractView.prototype.destroy = function()
 	}
 	childrenViews = null;
 	
-	this.tag.remove();
-	
 	if (this.parent)
 	{
 		var index = this.parent.childrenViews.indexOf(this);
