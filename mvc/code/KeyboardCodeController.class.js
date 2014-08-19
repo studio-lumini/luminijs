@@ -1,6 +1,6 @@
 function KeyboardCodeController(){}
 
-KeyboardCodeController._extends(CodeController);
+KeyboardCodeController._extends(FlushingCodeController);
 
 KeyboardCodeController.prototype.init = function()
 {

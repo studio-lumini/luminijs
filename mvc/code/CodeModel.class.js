@@ -12,6 +12,7 @@ CodeModel.prototype.setCode = function(code){
 
 CodeModel.prototype.push = function(element){
 	this.buffer.push(element);
+	jQuery(this).trigger(CodeEvent.DIGIT_PUSHED);
 };
 
 CodeModel.prototype.initializeBuffer = function(){
@@ -20,5 +21,8 @@ CodeModel.prototype.initializeBuffer = function(){
 
 CodeModel.prototype.dispatchComplete = function(){
 	jQuery(this).trigger(CodeEvent.CODE_COMPLETE);
-	this.initializeBuffer();
+};
+
+CodeModel.prototype.dispatchCompleteWrong = function(){
+	jQuery(this).trigger(CodeEvent.CODE_COMPLETE_WRONG);
 };

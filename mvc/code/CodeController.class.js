@@ -1,4 +1,11 @@
-function CodeController(){}
+/**
+ * Parent class of FlushingCodeController. Waits for all digits to have been
+ * input, then dispatches granted or denied. FlushingCodeController is the same,
+ * except for it flushes buffer on first wrong digit.
+ */
+
+function CodeController() {
+}
 
 CodeController._extends(AbstractObject);
 
@@ -15,24 +22,18 @@ CodeController.prototype.setCode = function(code) {
 };
 
 CodeController.prototype.push = function(element) {
-	if(this.canPush(element)){
-		this.model.push(element);
-	}else{
-		this.model.initializeBuffer();
-		if(this.canPush(element)){
-			this.model.push(element);
+	this.model.push(element);
+	if (this.model.buffer.length == this.model.code.length) {
+		if (this.model.buffer.equals(this.model.code)) {
+			this.model.dispatchComplete();
+			this.flush();
+		} else {
+			this.model.dispatchCompleteWrong();
+			this.flush();
 		}
-	}
-	if(this.model.buffer.length == this.model.code.length){
-		this.model.dispatchComplete();
-		this.model.initializeBuffer();
 	}
 };
 
 CodeController.prototype.flush = function() {
 	this.model.initializeBuffer();
-};
-
-CodeController.prototype.canPush = function(element) {
-	return this.model.code[this.model.buffer.length] == element;
 };
