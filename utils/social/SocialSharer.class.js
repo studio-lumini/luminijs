@@ -3,28 +3,16 @@ function SocialSharer()
 }
 
 /**
- * Shares content on Facebook
- * @param title
- * 		The title to share.
- * @param imageLink
- * 		The absolute link of the image to share.
- * @param link
- * 		The link to share.
- * @param description
- * 		The text to share.
+ * Shares content on Facebook.
+ * @param url
+ * 		The url to share.
  */
-SocialSharer.shareFacebook = function(title, imageLink, link, description)
+SocialSharer.shareFacebook = function(url)
 {
-	title = SocialSharer.cleanParam(title);
-	imageLink = SocialSharer.cleanParam(imageLink);
-	link = SocialSharer.cleanParam(link);
-	description = SocialSharer.cleanParam(description);
-	var url = "https://www.facebook.com/sharer.php?s=100&p[title]="+title+"&p[summary]="+description+"&p[url]="+link+"&p[images][0]="+imageLink;
+	url = SocialSharer.cleanParam(url);
+	var url = "https://www.facebook.com/sharer/sharer.php?u=" + url;
 	
-//	if (FB)
-//		FB.ui({ method: 'feed', link: link, name: title, picture: imageLink, description: description }, function(response){});
-//	else
-		SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
+	SocialSharer.popup(url, 600, 368, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
