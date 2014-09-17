@@ -1,5 +1,6 @@
 function DrupalServices()
 {
+	this.basePath = window['Drupal'] ? Drupal.settings.basePath : undefined;
 	this.postponedRequests = new Array();
 	this.headers = {
 		'Content-Type': 'application/json'
@@ -12,8 +13,11 @@ DrupalServices.token = undefined;
 
 DrupalServices.prototype.callAction = function(action, resultCallback, faultCallback, data)
 {
+	if (this.basePath == undefined)
+		throw new Error('Basepath is undefined');
+	
 	var request = new Object();
-	request.url = Drupal.settings.basePath + 'rest-endpoint/' + action;
+	request.url = this.basePath + 'rest-endpoint/' + action;
 	request.type = 'POST';
 	request.data = JSON.stringify(data);
 
