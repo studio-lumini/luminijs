@@ -47,7 +47,7 @@ DrupalServices.prototype.beforeSend = function (xhr) {
 DrupalServices.prototype.requestToken = function() 
 {
 	var request = new Object();
-	request.url = Drupal.settings.basePath + 'services/session/token';
+	request.url = this.basePath + 'services/session/token';
 	request.type = 'GET';
 	
 	request.beforeSend = jQuery.proxy(this.beforeSend, this);

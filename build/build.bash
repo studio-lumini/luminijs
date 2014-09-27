@@ -27,6 +27,8 @@ cat 'mvc/selection/AbstractSelectionContentView.class.js' >> ../bin/lumini.js
 cat 'utils/Cookie.class.js' >> ../bin/lumini.js
 cat 'utils/UrlToolbox.class.js' >> ../bin/lumini.js
 cat 'utils/social/SocialSharer.class.js' >> ../bin/lumini.js
+cat 'utils/detection/DeviceDetection.class.js' >> ../bin/lumini.js
+cat 'utils/detection/BrowserDetection.class.js' >> ../bin/lumini.js
 
 cat 'mvc/code/CodeEvent.class.js' >> ../bin/lumini.js
 cat 'mvc/code/CodeModel.class.js' >> ../bin/lumini.js
@@ -53,4 +55,8 @@ cat 'mvc/selection/SWFAddressSelectionModel.class.js' >> ../bin/lumini.js
 cat 'mvc/menu/AbstractMenuItemView.class.js' >> ../bin/lumini.js
 
 cat 'utils/AnimationHelper.class.js' >> ../bin/lumini.js
+
+cat 'utils/drupal/vo/Field.class.js' >> ../bin/lumini.js
+cat 'utils/drupal/vo/Entity.class.js' >> ../bin/lumini.js
+cat 'utils/drupal/vo/User.class.js' >> ../bin/lumini.js
 cat 'utils/drupal/DrupalServices.class.js' >> ../bin/lumini.js
