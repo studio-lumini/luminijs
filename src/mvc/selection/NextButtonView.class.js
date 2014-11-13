@@ -1,19 +1,15 @@
-function NextButtonView()
-{
-	this.selectionController = undefined;
+function NextButtonView() {
 }
 
 NextButtonView._extends(AbstractView);
 
-NextButtonView.prototype.init = function(tag, parent)
-{
-	AbstractView.prototype.init.call(this, tag, parent);
+NextButtonView.prototype.init = function (tag, parent) {
+    AbstractView.prototype.init.call(this, tag, parent);
 
-	this.bind(this.tag, 'click', this.onClick);
+    this.bind(this.$tag, 'click', this.onClick);
 };
 
 //private
-NextButtonView.prototype.onClick = function()
-{
-	this.selectionController.goNext();
+NextButtonView.prototype.onClick = function () {
+    this.controller.goNext();
 };

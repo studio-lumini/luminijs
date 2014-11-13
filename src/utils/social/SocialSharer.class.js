@@ -130,8 +130,8 @@ SocialSharer.shareGoogle = function(url, h1)
 //private
 SocialSharer.popup = function(url, width, height, options)
 {
-	var top = ((window.innerHeight) - height) / 2;
-	var left = ((window.innerWidth) - width) / 2;
+	var top = (screen.height - height) / 2;
+	var left = (screen.width - width) / 2;
 	window.open(url, "", "top="+top+",left="+left+",width="+width+",height="+height+","+options);
 };
 

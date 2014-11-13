@@ -7,6 +7,8 @@ function SelectionModel(){
 	this.state = undefined;
 }
 
+SelectionModel._extends(AbstractObject);
+
 SelectionModel.prototype.destroy = function() {
 	jQuery(this).unbind(SelectionEvent.ON_CURRENT_UPDATED);
 	jQuery(this).unbind(SelectionEvent.ON_OVER_UPDATED);

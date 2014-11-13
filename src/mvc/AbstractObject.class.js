@@ -22,6 +22,10 @@ AbstractObject.prototype.unbind = function(target,event,listener){
 	jQuery(target).unbind(event+"."+this.namespaceId, jQuery.proxy(listener, this));
 };
 
+AbstractObject.prototype.dispatchEvent = function(event, object){
+    jQuery(this).trigger(event, object);
+};
+
 //
 Function.prototype._extends = function(superClass){ 	 
 	this.prototype = new superClass;

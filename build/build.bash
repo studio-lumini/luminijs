@@ -22,7 +22,20 @@ cat 'mvc/stage/StageSizeController.class.js' >> ../bin/lumini.js
 
 cat 'mvc/AbstractView.class.js' >> ../bin/lumini.js
 
+cat 'mvc/selection/SelectionEvent.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/SelectionModel.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/SelectionController.class.js' >> ../bin/lumini.js
+
+cat 'mvc/selection/page/PageSelectionEvent.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/page/PageSelectionModel.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/page/PageSelectionController.class.js' >> ../bin/lumini.js
+
+cat 'mvc/selection/page/swfaddress/SWFAddressSelectionController.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/page/history/HistorySelectionController.class.js' >> ../bin/lumini.js
+
 cat 'mvc/selection/AbstractSelectionContentView.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/PreviousButtonView.class.js' >> ../bin/lumini.js
+cat 'mvc/selection/NextButtonView.class.js' >> ../bin/lumini.js
 
 cat 'utils/Cookie.class.js' >> ../bin/lumini.js
 cat 'utils/UrlToolbox.class.js' >> ../bin/lumini.js
@@ -36,10 +49,6 @@ cat 'mvc/code/CodeController.class.js' >> ../bin/lumini.js
 cat 'mvc/code/FlushingCodeController.class.js' >> ../bin/lumini.js
 cat 'mvc/code/KeyboardCodeController.class.js' >> ../bin/lumini.js
 
-cat 'mvc/selection/SelectionEvent.class.js' >> ../bin/lumini.js
-cat 'mvc/selection/SelectionModel.class.js' >> ../bin/lumini.js
-cat 'mvc/selection/SelectionController.class.js' >> ../bin/lumini.js
-
 cat 'mvc/facebook/FacebookModel.class.js' >> ../bin/lumini.js
 cat 'mvc/facebook/FacebookController.class.js' >> ../bin/lumini.js
 cat 'mvc/facebook/FacebookEvent.class.js' >> ../bin/lumini.js
@@ -47,10 +56,6 @@ cat 'mvc/facebook/FacebookEvent.class.js' >> ../bin/lumini.js
 cat 'mvc/twitter/TwitterEvent.class.js' >> ../bin/lumini.js
 cat 'mvc/twitter/TwitterModel.class.js' >> ../bin/lumini.js
 cat 'mvc/twitter/TwitterController.class.js' >> ../bin/lumini.js
-
-cat 'mvc/selection/SWFAddressSelectionController.class.js' >> ../bin/lumini.js
-cat 'mvc/selection/SWFAddressSelectionEvent.class.js' >> ../bin/lumini.js
-cat 'mvc/selection/SWFAddressSelectionModel.class.js' >> ../bin/lumini.js
 
 cat 'mvc/menu/AbstractMenuItemView.class.js' >> ../bin/lumini.js
 

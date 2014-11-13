@@ -1,7 +1,7 @@
 function AbstractView()
 {
 	this.controller = undefined;
-	this.tag = undefined;
+	this.$tag = undefined;
 	this.id = undefined;
 	this.parent = undefined;
 	this.childrenViews = new Array();
@@ -31,7 +31,7 @@ AbstractView.prototype.init = function(tag, parent){
 	if (this.parent && !this.controller)
 		this.controller = this.parent.controller;
 
-	this.tag = jQuery(tag);
+	this.$tag = jQuery(tag);
 };
 
 //private
