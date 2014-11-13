@@ -8,3 +8,4 @@ SelectionEvent.ON_SCOPE_UPDATED = "onScopeUpdated";
 SelectionEvent.ON_TOTAL_COUNT_UPDATED = "onTotalCountUpdated";
 SelectionEvent.ON_OFFSET_UPDATED = "onOffsetUpdated";
 SelectionEvent.ON_STATE_UPDATED = "onStateUpdated";
+SelectionEvent.ON_LOOPING_UPDATED = "onLoopingUpdated";
