@@ -12,6 +12,7 @@ PreviousButtonView.prototype.init = function (tag, parent) {
     PreviousButtonView._super.init.call(this, tag, parent);
     this.bind(this.$tag, 'click', this.onClick);
     this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    this.onCurrentUpdated(null);
 };
 
 //private
