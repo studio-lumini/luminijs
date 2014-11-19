@@ -1,9 +1,7 @@
-Version 1.0
-
- * Hard Dependencies
+* Hard Dependencies
 
  jQuery 1.4+
 
- * Soft Dependencies
+* Soft Dependencies
 
  HistoryJs
