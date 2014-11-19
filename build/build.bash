@@ -1,14 +1,16 @@
 #!/bin/bash
 
-cd ../bin
+cd ..
 
-if [[ -f lumini.js ]]
+if [[ -d bin ]]
 then
-	rm lumini.js
+    rm -rf bin
 fi
-touch lumini.js
 
-cd ../src
+mkdir bin
+touch bin/lumini.js
+
+cd src
 
 cat 'google/GATracker.class.js' >> ../bin/lumini.js
 #echo -e '\n' >> ../bin/lumini.js
