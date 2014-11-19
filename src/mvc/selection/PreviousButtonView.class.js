@@ -3,9 +3,10 @@ function PreviousButtonView() {
 
 PreviousButtonView._extends(AbstractView);
 
-PreviousButtonView.prototype.destroy = function (tag, parent) {
+PreviousButtonView.prototype.destroy = function () {
     this.unbind(this.$tag, 'click', this.onClick);
     this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    PreviousButtonView._super.destroy.call(this);
 };
 
 PreviousButtonView.prototype.init = function (tag, parent) {

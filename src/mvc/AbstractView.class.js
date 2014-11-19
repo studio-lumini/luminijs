@@ -37,7 +37,7 @@ AbstractView.prototype.init = function(tag, parent){
 //private
 AbstractView.prototype.addChildView = function(childView)
 {
-	if (this.childrenViews.indexOf(childView) !== -1)
+	if (this.childrenViews.indexOf(childView) === -1)
 	{
 		this.childrenViews.push(childView);
 	}
