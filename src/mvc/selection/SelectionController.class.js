@@ -37,6 +37,7 @@ SelectionController.prototype.setCurrent = function(current){
 	if(this.model === undefined) return;
 	if(this.model.current !== current){
 		this.model.setCurrent(current);
+		console.log(current);
 	}
 };
 

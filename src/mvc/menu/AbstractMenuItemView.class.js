@@ -19,9 +19,9 @@ AbstractMenuItemView.prototype.init = function(tag, parent)
 	AbstractMenuItemView._super.init.call(this, tag, parent);
 
 	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
-    this.onCurrentUpdated(null),
+  this.onCurrentUpdated(null),
 	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED, this.onOverUpdated);
-    this.onOverUpdated(null);
+  this.onOverUpdated(null);
 };
 
 //protected
