@@ -14,7 +14,7 @@ AbstractView.prototype.destroy = function()
 	while (0 < this.childrenViews.length){
 		this.childrenViews[0].destroy();
 	}
-	childrenViews = null;
+	this.childrenViews = null;
 	
 	if (this.parent)
 	{

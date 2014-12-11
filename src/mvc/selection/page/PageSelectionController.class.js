@@ -6,6 +6,14 @@ PageSelectionController.prototype.createModel = function(){
     this.model = new PageSelectionModel();
 };
 
+PageSelectionController.prototype.setCurrent = function(current) {
+    if(this.model === undefined) return;
+    if(this.model.current !== current){
+        this.model.setCurrent(current);
+        this.loadPage(current);
+    }
+};
+
 //private
 PageSelectionController.prototype.loadPage = function(page)
 {

@@ -48,7 +48,7 @@ SocialSharer.shareTwitter = function (url, text, hashtags, via) {
 
     if (hashtags) {
         hashtags = encodeURIComponent(hashtags);
-        queryString += "hashtags=" + hashtags;
+        queryString += "&hashtags=" + hashtags;
     }
     if (via) {
         via = encodeURIComponent(via);
