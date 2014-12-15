@@ -10,7 +10,7 @@ SocialSharer.shareFacebook = function (url) {
     url = encodeURIComponent(url);
     var url = "https://www.facebook.com/sharer/sharer.php?u=" + url;
 
-    SocialSharer.popup(url, 600, 368, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 368, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -26,7 +26,7 @@ SocialSharer.sharePinterest = function (url, media, description) {
 
     var queryString = "url=" + url + "&media=" + media + "&description=" + text;
     var url = "//pinterest.com/pin/create/button?" + queryString;
-    SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -41,11 +41,14 @@ SocialSharer.sharePinterest = function (url, media, description) {
  *        A screen name to associate with the tweet. Omit the "@" symbol.
  */
 SocialSharer.shareTwitter = function (url, text, hashtags, via) {
-    url = encodeURIComponent(url);
-    text = encodeURIComponent(text);
+    var queryString = '';
 
-    var queryString = "&url=" + url + "&text=" + text;
-
+    if (url) {
+        queryString += '&url=' + encodeURIComponent(url);
+    }
+    if (text) {
+        queryString += '&text=' + encodeURIComponent(text);
+    }
     if (hashtags) {
         hashtags = encodeURIComponent(hashtags);
         queryString += "&hashtags=" + hashtags;
@@ -54,8 +57,9 @@ SocialSharer.shareTwitter = function (url, text, hashtags, via) {
         via = encodeURIComponent(via);
         queryString += "&via=" + via;
     }
-    var url = "http://twitter.com/intent/tweet?" + queryString;
-    SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
+
+    var url = 'http://twitter.com/intent/tweet?' + queryString;
+    return SocialSharer.popup(url, 600, 350, 'menubar=no,scrollbars=no,statusbar=no');
 };
 
 /**
@@ -65,7 +69,7 @@ SocialSharer.shareTwitter = function (url, text, hashtags, via) {
  */
 SocialSharer.twitterIntentUser = function (screen_name) {
     var url = "https://twitter.com/intent/user?screen_name=" + screen_name;
-    SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -82,7 +86,7 @@ SocialSharer.shareTumblrLink = function (link, name, description) {
         url += "&name=" + encodeURIComponent(name);
     if (description)
         url += "&description" + encodeURIComponent(description);
-    SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -104,7 +108,7 @@ SocialSharer.shareLinkedIn = function (url, title, source, summary) {
     url += "&summary=" + encodeURIComponent(summary);
     url += "&source=" + encodeURIComponent(source);
 
-    SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -118,12 +122,12 @@ SocialSharer.shareGoogle = function (url, h1) {
     var url = "https://plus.google.com/share?url=" + encodeURIComponent(url);
     if (h1)
         url += "&h1=" + encodeURIComponent(h1);
-    SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 //private
 SocialSharer.popup = function (url, width, height, options) {
     var top = (screen.height - height) / 2;
     var left = (screen.width - width) / 2;
-    window.open(url, "", "top=" + top + ",left=" + left + ",width=" + width + ",height=" + height + "," + options);
+    return window.open(url, "", "top=" + top + ",left=" + left + ",width=" + width + ",height=" + height + "," + options);
 };
