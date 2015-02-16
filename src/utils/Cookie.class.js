@@ -6,7 +6,11 @@ Cookie.set = function(name, value, lifeExpectancy)
 {
 	var expirationDate = new Date();
 	expirationDate.setDate(expirationDate.getDate() + lifeExpectancy);
-	value = escape(value) + ((lifeExpectancy == 0) ? "" : "; expires=" + expirationDate.toUTCString());
+	value = escape(value);
+    if (lifeExpectancy != 0) {
+        value += "; expires=" + expirationDate.toUTCString();
+    }
+    value += '; path=/';
 	document.cookie = name + "=" + value;
 };
 
