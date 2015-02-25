@@ -114,7 +114,6 @@ FacebookController.prototype.onAuthStatusChange = function(response)
 {
 	switch(response.status){
 	case 'connected':
-		Cookie.set('access_token', response.authResponse.accessToken, 1);
 		this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
 		break;
 	case 'not_authorized':
@@ -133,4 +132,8 @@ FacebookController.prototype.onLogin = function(response)
 	}
 	else
 		this.model.setSession(null, null);
+};
+
+window.fbAsyncInit = function() {
+    FacebookController.getInstance().initFacebook(Drupal.settings.facebook_light.appId);
 };

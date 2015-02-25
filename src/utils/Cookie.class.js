@@ -2,12 +2,19 @@ function Cookie()
 {
 }
 
-Cookie.set = function(name, value, lifeExpectancy)
+//TODO: handle life expectancy parameter
+Cookie.set = function(name, value, lifeExpectancy, path)
 {
-	var expirationDate = new Date();
-	expirationDate.setDate(expirationDate.getDate() + lifeExpectancy);
-	value = escape(value) + ((lifeExpectancy == 0) ? "" : "; expires=" + expirationDate.toUTCString());
-	document.cookie = name + "=" + value;
+	var now = new Date();
+	var expirationDate = new Date(now.getDate() + lifeExpectancy);
+
+    var cookie = name + '=' + value;
+
+    if (path) {
+        cookie += ';path=' + path;
+    }
+
+	document.cookie = cookie;
 };
 
 Cookie.get = function(name)
