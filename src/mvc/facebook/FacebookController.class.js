@@ -1,12 +1,14 @@
-function FacebookController() {
+function FacebookController()
+{
     this.model = undefined;
 }
 
-FacebookController.fbAsyncInit = false;
 FacebookController.instance = undefined;
 
-FacebookController.getInstance = function () {
-    if (FacebookController.fbAsyncInit && FacebookController.instance === undefined) {
+FacebookController.getInstance = function()
+{
+    if(FacebookController.instance === undefined)
+    {
         var instance = new FacebookController();
         instance.init();
         FacebookController.instance = instance;
@@ -14,46 +16,54 @@ FacebookController.getInstance = function () {
     return FacebookController.instance;
 };
 
-FacebookController.prototype.init = function () {
+FacebookController.prototype.init = function()
+{
     this.model = new FacebookModel();
+};
 
-    this.model.appId = Drupal.settings.facebook_light.appId;
+FacebookController.prototype.initFacebook = function(appId)
+{
+    this.model.appId = appId;
 
     FB.init({
         appId: this.model.appId,
         status: false,
         cookie: true,
-        xfbml: false
+        xfbml: true
     });
 
     FB.getLoginStatus(jQuery.proxy(this.onAuthStatusChange, this));
 };
 
-FacebookController.prototype.login = function (scope) {
+FacebookController.prototype.login = function(scope)
+{
     var params = {};
     if (scope)
         params.scope = scope;
     FB.login(jQuery.proxy(this.onLogin, this), params);
 };
 
-//API calls, deprecated
-// prefer using the API directly
-FacebookController.prototype.addImageInAlbum = function (albumName, albumDescription, url, description) {
+FacebookController.prototype.addImageInAlbum = function(albumName, albumDescription, url, description)
+{
     var self = this;
     FB.api('/me/albums', 'get', {'fields': 'name', 'limit': 100000000000000},
-        function (response) {
+        function(response) {
             var album = undefined;
-            for (var i = 0; i < response.data.length; i++) {
+            for (var i = 0; i < response.data.length ; i ++)
+            {
                 album = response.data[i];
                 if (album.name == albumName) break;
                 else album = undefined;
             }
-            if (album) {
+            if (album)
+            {
                 self.addImageInExistingAlbum(album.id, url, description);
             }
-            else {
+            else
+            {
                 FB.api('/me/albums', 'post', {'name': albumName, 'message': albumDescription},
-                    function (response) {
+                    function(response)
+                    {
                         self.addImageInExistingAlbum(response.id, url, description);
                     }
                 );
@@ -62,22 +72,34 @@ FacebookController.prototype.addImageInAlbum = function (albumName, albumDescrip
     );
 };
 
-FacebookController.prototype.addImageInExistingAlbum = function (albumId, url, description) {
+FacebookController.prototype.addImageInExistingAlbum = function(albumId, url, description)
+{
     var self = this;
     FB.api('/' + albumId + '/photos', 'post', {'message': description, 'url': url},
-        function (response) {
+        function(response){
             jQuery(self.model).trigger(FacebookEvent.PHOTO_ADDED);
         }
     );
 };
 
-FacebookController.prototype.getLikes = function (fields, uid) {
-    if (uid == null) uid = this.model.uid;
-    var params = fields == null ? {} : {'fields': 'likes.fields(' + fields + ')'};
+FacebookController.prototype.api = function(url, method, params)
+{
+    var self = this;
+    FB.api(url, method, params,
+        function(response){
+            jQuery(self.model).trigger(FacebookEvent.API_CALL_SUCCESS, [response]);
+        }
+    );
+};
+
+FacebookController.prototype.getLikes = function(fields, uid)
+{
+    if(uid == null) uid = this.model.uid;
+    var params = fields == null ? {}: {'fields': 'likes.fields('+fields+')'};
     var self = this;
 
     FB.api('/' + uid, 'get', params,
-        function (response) {
+        function(response){
             self.model.setLikes(response.likes.data);
         }
     );
@@ -90,31 +112,27 @@ FacebookController.prototype.getLikes = function (fields, uid) {
  */
 FacebookController.prototype.onAuthStatusChange = function(response)
 {
-	switch(response.status){
-	case 'connected':
-		this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
-		break;
-	case 'not_authorized':
-		this.model.setSession(null, null);
-	default:
-		this.model.setSession(null, null);
-		break;
-	}
+    switch(response.status){
+        case 'connected':
+            Cookie.set('access_token', response.authResponse.accessToken, 1);
+            this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
+            break;
+        case 'not_authorized':
+            this.model.setSession(null, null);
+        default:
+            this.model.setSession(null, null);
+            break;
+    }
 };
 
-FacebookController.prototype.onLogin = function (response) {
-    if (response.authResponse) {
+FacebookController.prototype.onLogin = function(response)
+{
+    if (response.authResponse)
+    {
         this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
     }
-    else {
+    else
         this.model.setSession(null, null);
-    }
-};
-
-//init function
-window.fbAsyncInit = function () {
-    FacebookController.fbAsyncInit = true;
-    FacebookController.getInstance();
 };
 
 window.fbAsyncInit = function() {

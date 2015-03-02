@@ -5,14 +5,13 @@ function Cookie()
 //TODO: handle life expectancy parameter
 Cookie.set = function(name, value, lifeExpectancy, path)
 {
+    if (!path) path  = '/';
+
 	var now = new Date();
 	var expirationDate = new Date(now.getDate() + lifeExpectancy);
 
     var cookie = name + '=' + value;
-
-    if (path) {
-        cookie += ';path=' + path;
-    }
+    cookie += ';path=' + path;
 
 	document.cookie = cookie;
 };
