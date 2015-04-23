@@ -62,7 +62,7 @@ AbstractMenuItemView.prototype.onOverUpdated = function()
 	{
 		this.hilite();
 	}
-	else if (this.current !== this.id)
+	else if (this.controller.model.current !== this.id)
 	{
 		this.unhilite();
 	}
