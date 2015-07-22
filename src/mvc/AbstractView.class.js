@@ -3,7 +3,7 @@ function AbstractView() {
     this.$tag = undefined;
     this.id = undefined;
     this.parent = undefined;
-    this.childrenViews = new Array();
+    this.childrenViews = undefined;
 }
 
 AbstractView._extends(AbstractObject);
@@ -24,6 +24,7 @@ AbstractView.prototype.destroy = function () {
 
 AbstractView.prototype.init = function (tag, parent) {
     AbstractView._super.init.call(this);
+    this.childrenViews = new Array();
     this.setParent(parent);
     if (this.parent && !this.controller)
         this.controller = this.parent.controller;
