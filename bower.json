@@ -1,0 +1,31 @@
+{
+  "name": "luminijs",
+  "version": "1.3",
+  "homepage":"http://www.lumini.fr",
+  "authors": [
+    {"name":"Andrzej Wieczorkiwicz", "email":"andrzej@lumini.fr"},
+    {"name":"Arnaud Dabouis", "email":"arnaud@lumini.fr"}
+  ],
+  "description": "lumini javaScript framework",
+  "main": "dist/luminijs.min.js",
+  "keywords": [
+    "lumini",
+    "javascript",
+    "mvc"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andrzej-lumini/luminijs.git"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+
+  }
+}
