@@ -183,33 +183,37 @@ MovieClip.prototype.previousFrame = function(){
 	if(this.frame != 0){
 		this.frame--;
 	}
-}; Object.defineProperty(Array.prototype, "equals", {
-    enumerable: false,
-    writable: true,
-    value: function(array) {
-        // if the other array is a falsy value, return
-        if (!array)
-            return false;
-
-        // compare lengths - can save a lot of time
-        if (this.length != array.length)
-            return false;
-
-        for (var i = 0, l=this.length; i < l; i++) {
-            // Check if we have nested arrays
-            if (this[i] instanceof Array && array[i] instanceof Array) {
-                // recurse into the nested arrays
-                if (!this[i].equals(array[i]))
-                    return false;
-            }
-            else if (this[i] != array[i]) {
-                // Warning - two different object instances will never be equal: {x:20} != {x:20}
+}; //IE 8 fix
+//@see http://stackoverflow.com/questions/4819693/working-around-ie8s-broken-object-defineproperty-implementation
+try {
+    Object.defineProperty(Array.prototype, "equals", {
+        enumerable: false,
+        writable: true,
+        value: function (array) {
+            // if the other array is a falsy value, return
+            if (!array)
                 return false;
+
+            // compare lengths - can save a lot of time
+            if (this.length != array.length)
+                return false;
+
+            for (var i = 0, l = this.length; i < l; i++) {
+                // Check if we have nested arrays
+                if (this[i] instanceof Array && array[i] instanceof Array) {
+                    // recurse into the nested arrays
+                    if (!this[i].equals(array[i]))
+                        return false;
+                }
+                else if (this[i] != array[i]) {
+                    // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
-    }
-});
+    });
+} catch(e) {}
 function ExtendedMath()
 {
 	
@@ -243,7 +247,7 @@ ExtendedMath.round = function(x, n)
 };
 function GATracker()
 {
-};
+}
 
 GATracker.prototype.ua = undefined;
 GATracker.prototype.tracker = undefined;
@@ -280,7 +284,7 @@ function Stats()
 {
 }
 
-Stats.gaAccounts = undefined; // define ua array
+Stats.gaAccounts = undefined; //define ua array before creating instance
 Stats.prototype.gaTrackers = undefined;
 
 Stats.instance = undefined;		
@@ -326,6 +330,10 @@ AbstractObject.prototype.one = function(target, event, listener){
 	jQuery(target).one(event+"."+this.namespaceId, jQuery.proxy(listener, this));
 };
 
+AbstractObject.prototype.live = function(target, event, listener){
+    jQuery(target).live(event+"."+this.namespaceId, jQuery.proxy(listener, this));
+};
+
 AbstractObject.prototype.bind = function(target, event, listener){
 	jQuery(target).bind(event+"."+this.namespaceId, jQuery.proxy(listener, this));
 };
@@ -334,64 +342,142 @@ AbstractObject.prototype.unbind = function(target,event,listener){
 	jQuery(target).unbind(event+"."+this.namespaceId, jQuery.proxy(listener, this));
 };
 
+AbstractObject.prototype.dispatchEvent = function(event, object){
+    jQuery(this).trigger(event, object);
+};
+
 //
 Function.prototype._extends = function(superClass){ 	 
 	this.prototype = new superClass;
 	this.prototype.constructor = this;
 	this._super = superClass.prototype;
 };
-function AbstractView()
-{
-	this.controller = undefined;
-	this.tag = undefined;
-	this.id = undefined;
-	this.parent = undefined;
-	this.childrenViews = new Array();
+function AbstractView() {
+    this.controller = undefined;
+    this.$tag = undefined;
+    this.id = undefined;
+    this.parent = undefined;
+    this.childrenViews = undefined;
 }
 
 AbstractView._extends(AbstractObject);
 
-AbstractView.prototype.destroy = function()
-{	
-	while (0 < this.childrenViews.length){
-		this.childrenViews[0].destroy();
-	}
-	childrenViews = null;
-	
-	if (this.parent)
-	{
-		var index = this.parent.childrenViews.indexOf(this);
-		this.parent.childrenViews.splice(index, 1);
-	}
-	
-	AbstractView._super.destroy.call(this);
+AbstractView.prototype.destroy = function () {
+    while (0 < this.childrenViews.length) {
+        this.childrenViews[0].destroy();
+    }
+    this.childrenViews = null;
+
+    if (this.parent) {
+        var index = this.parent.childrenViews.indexOf(this);
+        this.parent.childrenViews.splice(index, 1);
+    }
+
+    AbstractView._super.destroy.call(this);
 };
 
-AbstractView.prototype.init = function(tag, parent){
-	AbstractView._super.init.call(this);
-	this.setParent(parent);
-	if (this.parent && !this.controller)
-		this.controller = this.parent.controller;
+AbstractView.prototype.init = function (tag, parent) {
+    AbstractView._super.init.call(this);
+    this.childrenViews = new Array();
+    this.setParent(parent);
+    if (this.parent && !this.controller)
+        this.controller = this.parent.controller;
 
-	this.tag = jQuery(tag);
+    this.$tag = jQuery(tag);
 };
 
 //private
-AbstractView.prototype.addChildView = function(childView)
-{
-	if (this.childrenViews.indexOf(childView) !== -1)
-	{
-		this.childrenViews.push(childView);
-	}
+AbstractView.prototype.addChildView = function (childView) {
+    if (this.childrenViews.indexOf(childView) === -1) {
+        this.childrenViews.push(childView);
+    }
 };
 
-AbstractView.prototype.setParent = function(parent){
-	this.parent = parent;
-	if (this.parent)
-	{
-		this.parent.addChildView(this);
-	}
+AbstractView.prototype.setParent = function (parent) {
+    this.parent = parent;
+    if (this.parent) {
+        this.parent.addChildView(this);
+    }
 };
+function ActivityController(){}
+ActivityController._extends(AbstractObject);
+
+ActivityController.instance = undefined;
+
+ActivityController.getInstance = function(){
+  if(ActivityController.instance === undefined){
+    var instance = new ActivityController();
+    instance.init();
+    ActivityController.instance = instance;
+  }
+  return ActivityController.instance;
+};
+
+ActivityController.prototype.init = function(){
+  this.createModel()
+};
+
+ActivityController.prototype.createModel = function() {
+  this.model = new ActivityModel();
+};
+
+ActivityController.prototype.enable = function() {
+  if(!this.model.enabled){
+    this.model.enable();
+    this.timeout = setTimeout(jQuery.proxy(this.onTimeout, this), this.model.inactivityDuration);
+    this.bind(jQuery(document), 'mousemove', jQuery.proxy(this.onMouseMove, this));
+  }
+};
+
+ActivityController.prototype.disable = function() {
+  this.model.disable();
+  clearTimeout(this.timeout);
+  this.unbind(jQuery(document), 'mousemove', jQuery.proxy(this.onMouseMove, this));
+};
+
+ActivityController.prototype.onTimeout = function() {
+  this.model.setActivityOFF();
+};
+
+ActivityController.prototype.onMouseMove = function() {
+  if(!this.model.active){
+    this.model.setActivityON();
+  }
+  clearTimeout(this.timeout);
+  this.timeout = setTimeout(jQuery.proxy(this.onTimeout, this), this.model.inactivityDuration);
+};
+function ActivityEvent(){
+
+}
+ActivityEvent.ACTIVITY_ON = 'onActivityOn';
+ActivityEvent.ACTIVITY_OFF = 'onActivityOff';
+ActivityEvent.ACTIVITY_ENABLED = 'onActivityEnabled';
+ActivityEvent.ACTIVITY_DISABLED = 'onActivityDisabled';
+function ActivityModel(){
+  this.active = false;
+  this.inactivityDuration = 2000;
+}
+
+ActivityModel.prototype.setActivityON = function(){
+  this.active = true;
+  jQuery(this).trigger(ActivityEvent.ACTIVITY_ON);
+};
+
+ActivityModel.prototype.setActivityOFF = function(){
+  this.active = false;
+  jQuery(this).trigger(ActivityEvent.ACTIVITY_OFF);
+};
+
+ActivityModel.prototype.enable = function() {
+  this.enabled = true;
+  jQuery(this).trigger(ActivityEvent.ACTIVITY_ENABLED);
+};
+
+ActivityModel.prototype.disable = function() {
+  this.enabled = false;
+  jQuery(this).trigger(ActivityEvent.ACTIVITY_DISABLED);
+};
+
 function KonamiCodeController() {
 }
 
@@ -535,109 +621,109 @@ KeyboardCodeController.prototype.onKeyDown = function(event)
 };
 function FacebookController()
 {
-	this.model = undefined;
+    this.model = undefined;
 }
 
 FacebookController.instance = undefined;
 
 FacebookController.getInstance = function()
 {
-	if(FacebookController.instance === undefined)
-	{
-		var instance = new FacebookController();
-		instance.init();
-		FacebookController.instance = instance;
-	}
-	return FacebookController.instance;
+    if(FacebookController.instance === undefined)
+    {
+        var instance = new FacebookController();
+        instance.init();
+        FacebookController.instance = instance;
+    }
+    return FacebookController.instance;
 };
 
 FacebookController.prototype.init = function()
 {
-	this.model = new FacebookModel();
+    this.model = new FacebookModel();
 };
 
 FacebookController.prototype.initFacebook = function(appId)
 {
-	this.model.appId = appId;
-	
-	FB.init({
-		appId: this.model.appId,
-		status: false,
-		cookie: true,
-		xfbml: true
-	});
-	
-	FB.getLoginStatus(jQuery.proxy(this.onAuthStatusChange, this));
+    this.model.appId = appId;
+
+    FB.init({
+        appId: this.model.appId,
+        status: false,
+        cookie: true,
+        xfbml: true
+    });
+
+    FB.getLoginStatus(jQuery.proxy(this.onAuthStatusChange, this));
 };
 
 FacebookController.prototype.login = function(scope)
 {
-	var params = {};
-	if (scope)
-		params.scope = scope;
-	FB.login(jQuery.proxy(this.onLogin, this), params);
+    var params = {};
+    if (scope)
+        params.scope = scope;
+    FB.login(jQuery.proxy(this.onLogin, this), params);
 };
 
 FacebookController.prototype.addImageInAlbum = function(albumName, albumDescription, url, description)
 {
-	var self = this;
-	FB.api('/me/albums', 'get', {'fields': 'name', 'limit': 100000000000000},
-		function(response) {
-			var album = undefined;
-			for (var i = 0; i < response.data.length ; i ++)
-			{
-				album = response.data[i];
-				if (album.name == albumName) break;
-				else album = undefined;
-			}
-			if (album)
-			{
-				self.addImageInExistingAlbum(album.id, url, description);
-			}
-			else
-			{
-				FB.api('/me/albums', 'post', {'name': albumName, 'message': albumDescription},
-					function(response) 
-					{
-						self.addImageInExistingAlbum(response.id, url, description);
-					}
-				);
-			}
-		}
-	);
+    var self = this;
+    FB.api('/me/albums', 'get', {'fields': 'name', 'limit': 100000000000000},
+        function(response) {
+            var album = undefined;
+            for (var i = 0; i < response.data.length ; i ++)
+            {
+                album = response.data[i];
+                if (album.name == albumName) break;
+                else album = undefined;
+            }
+            if (album)
+            {
+                self.addImageInExistingAlbum(album.id, url, description);
+            }
+            else
+            {
+                FB.api('/me/albums', 'post', {'name': albumName, 'message': albumDescription},
+                    function(response)
+                    {
+                        self.addImageInExistingAlbum(response.id, url, description);
+                    }
+                );
+            }
+        }
+    );
 };
 
 FacebookController.prototype.addImageInExistingAlbum = function(albumId, url, description)
 {
-	var self = this;
-	FB.api('/' + albumId + '/photos', 'post', {'message': description, 'url': url},
-		function(response){
-			jQuery(self.model).trigger(FacebookEvent.PHOTO_ADDED);
-		}
-	);
+    var self = this;
+    FB.api('/' + albumId + '/photos', 'post', {'message': description, 'url': url},
+        function(response){
+            jQuery(self.model).trigger(FacebookEvent.PHOTO_ADDED);
+        }
+    );
 };
 
 FacebookController.prototype.api = function(url, method, params)
 {
-	var self = this;
-	FB.api(url, method, params,
-		function(response){
-			jQuery(self.model).trigger(FacebookEvent.API_CALL_SUCCESS, [response]);
-		}
-	);
+    var self = this;
+    FB.api(url, method, params,
+        function(response){
+            jQuery(self.model).trigger(FacebookEvent.API_CALL_SUCCESS, [response]);
+        }
+    );
 };
 
 FacebookController.prototype.getLikes = function(fields, uid)
 {
-	if(uid == null) uid = this.model.uid;
-	var params = fields == null ? {}: {'fields': 'likes.fields('+fields+')'};
-	var self = this;
-	
-	FB.api('/' + uid, 'get', params,
-		function(response){
-			self.model.setLikes(response.likes.data);
-		}
-	);
+    if(uid == null) uid = this.model.uid;
+    var params = fields == null ? {}: {'fields': 'likes.fields('+fields+')'};
+    var self = this;
+
+    FB.api('/' + uid, 'get', params,
+        function(response){
+            self.model.setLikes(response.likes.data);
+        }
+    );
 };
 
 
@@ -647,36 +733,44 @@ FacebookController.prototype.getLikes = function(fields, uid)
  */
 FacebookController.prototype.onAuthStatusChange = function(response)
 {
-	switch(response.status){
-	case 'connected':
-		Cookie.set('access_token', response.authResponse.accessToken, 1);
-		this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
-		break;
-	case 'not_authorized':
-		this.model.setSession(null, null);
-	default:
-		this.model.setSession(null, null);
-		break;
-	}
+    switch(response.status){
+        case 'connected':
+            Cookie.set('access_token', response.authResponse.accessToken, 1);
+            this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
+            break;
+        case 'not_authorized':
+            this.model.setSession(null, null);
+        default:
+            this.model.setSession(null, null);
+            break;
+    }
 };
 
 FacebookController.prototype.onLogin = function(response)
 {
-	if (response.authResponse)
-	{
-		this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
-	}
-	else
-		this.model.setSession(null, null);
+    if (response.authResponse)
+    {
+        this.model.setSession(response.authResponse.userID, response.authResponse.accessToken);
+    }
+    else
+        this.model.setSession(null, null);
+};
+
+window.fbAsyncInit = function() {
+    FacebookController.getInstance().initFacebook(Drupal.settings.facebook_light.appId);
 };
 function FacebookEvent()
 {
 }
 
-FacebookEvent.ON_SESSION = "onSession";
-FacebookEvent.PHOTO_ADDED = "photoAdded";
-FacebookEvent.API_CALL_SUCCESS = "apiCallSuccess";
-FacebookEvent.LIKES_UPDATED = "likesUpdated";function FacebookModel()
+FacebookEvent.ON_SESSION = 'onSession';
+FacebookEvent.PHOTO_ADDED = 'photoAdded';
+FacebookEvent.API_CALL_SUCCESS = 'apiCallSuccess';
+FacebookEvent.LIKES_UPDATED = 'likesUpdated';
+
+FacebookEvent.ALBUMS_RETRIEVED = 'albumsRetrieved';
+FacebookEvent.ALBUM_RETRIEVED = 'albumRetrieved';
+function FacebookModel()
 {
 	this.uid = undefined; //null: user not logged to your app
 	this.accessToken = undefined;
@@ -687,7 +781,8 @@ FacebookEvent.LIKES_UPDATED = "likesUpdated";function FacebookModel()
 FacebookModel.prototype.setSession = function(uid, accessToken)
 {
 	this.uid = uid;
-	this.accessToken = accessToken; 
+	this.accessToken = accessToken;
+    Cookie.set('access_token', accessToken, 1, '/');
 	jQuery(this).trigger(FacebookEvent.ON_SESSION);
 };
 
@@ -706,8 +801,8 @@ AbstractMenuItemView.prototype.destroy = function()
 {
 	if (this.controller != undefined)
 	{
-		this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
-		this.unbind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
+		this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+		this.unbind(this.controller.model, SelectionEvent.ON_OVER_UPDATED, this.onOverUpdated);
 	}
 	AbstractMenuItemView._super.destroy.call(this);
 };
@@ -716,8 +811,10 @@ AbstractMenuItemView.prototype.init = function(tag, parent)
 {
 	AbstractMenuItemView._super.init.call(this, tag, parent);
 
-	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
-	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
+	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+  this.onCurrentUpdated(null);
+	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED, this.onOverUpdated);
+  this.onOverUpdated(null);
 };
 
 //protected
@@ -758,7 +855,7 @@ AbstractMenuItemView.prototype.onOverUpdated = function()
 	{
 		this.hilite();
 	}
-	else if (this.current !== this.id)
+	else if (this.controller.model.current !== this.id)
 	{
 		this.unhilite();
 	}
@@ -774,6 +871,33 @@ AbstractMenuItemView.prototype.onCurrentUpdated = function()
 	{
 		this.unhilite();
 	}
+};
+function DefaultMenuItemView () {
+
+}
+
+DefaultMenuItemView._extends(AbstractMenuItemView);
+
+DefaultMenuItemView.prototype.destroy = function(){
+	this.unbind(this.$tag, 'mouseover', this.onMouseOver);
+	this.unbind(this.$tag, 'mouseout', this.onMouseOut);
+	this.unbind(this.$tag, 'click', this.onClick);
+	DefaultMenuItemView._super.destroy.call(this);
+};
+
+DefaultMenuItemView.prototype.init = function(tag, parent){
+	DefaultMenuItemView._super.init.call(this, tag, parent);
+	this.bind(this.$tag, 'mouseover', this.onMouseOver);
+	this.bind(this.$tag, 'mouseout', this.onMouseOut);
+	this.bind(this.$tag, 'click', this.onClick);
+};
+
+DefaultMenuItemView.prototype.hilite = function() {
+	this.$tag.addClass('over');
+};
+
+DefaultMenuItemView.prototype.unhilite = function() {
+	this.$tag.removeClass('over');
 };
 function AbstractSelectionContentView(){
 	AbstractView.call(this);
@@ -805,49 +929,233 @@ AbstractSelectionContentView.prototype.onCurrentUpdated = function(){
 };
 
 AbstractSelectionContentView.prototype.show = function(){
-	this.tag.show();
+	this.$tag.show();
 };
 
 AbstractSelectionContentView.prototype.hide = function(){
-	this.tag.hide();
+	this.$tag.hide();
 };
-function NextButtonView()
-{
-	this.selectionController = undefined;
+function DefaultSelectionContentView() {
+
+}
+
+DefaultSelectionContentView._extends(AbstractSelectionContentView);
+
+AbstractSelectionContentView.prototype.onCurrentUpdated = function(){
+  if(this.controller.model.current === this.id){
+    this.show();
+  }else{
+    this.hide();
+  }
+};
+
+
+function NextButtonView() {
 }
 
 NextButtonView._extends(AbstractView);
 
-NextButtonView.prototype.init = function(tag, parent)
-{
-	AbstractView.prototype.init.call(this, tag, parent);
+NextButtonView.prototype.destroy = function () {
+    this.unbind(this.$tag, 'click', this.onClick);
+    this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    NextButtonView._super.destroy.call(this);
+};
 
-	this.bind(this.tag, 'click', this.onClick);
+NextButtonView.prototype.init = function (tag, parent) {
+    NextButtonView._super.init.call(this, tag, parent);
+    this.bind(this.$tag, 'click', this.onClick);
+    this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    this.onCurrentUpdated(null);
 };
 
 //private
-NextButtonView.prototype.onClick = function()
-{
-	this.selectionController.goNext();
+NextButtonView.prototype.onClick = function () {
+    this.controller.goNext();
 };
-function PreviousButtonView()
+
+NextButtonView.prototype.onCurrentUpdated = function () {
+    var scope = this.controller.model.scope;
+    var index = scope.indexOf(this.controller.model.current);
+    if (index == scope.length - 1 && !this.controller.model.looping)
+        this.$tag.hide();
+    else
+        this.$tag.show();
+};
+function HistorySelectionController(){
+}
+
+HistorySelectionController._extends(PageSelectionController);
+
+HistorySelectionController.prototype.init = function()
 {
-	this.selectionController = undefined;
+    HistorySelectionController._super.init.call(this);
+
+    History.Adapter.bind(window, 'statechange', jQuery.proxy(this.onHistoryStateChange, this));
+    this.onHistoryStateChange();
+};
+
+HistorySelectionController.prototype.setCurrent = function(current)
+{
+    if (this.model.current !== current) {
+        History.pushState(null, null, '/' + current);
+    }
+};
+
+HistorySelectionController.prototype.getPreviousHistoryState = function () {
+    var len = this.model.history.length;
+    if (len < 2) return null;
+    else {
+        return this.model.history[len - 2];
+    }
+};
+
+//private
+HistorySelectionController.prototype.onHistoryStateChange = function(event)
+{
+    var state = History.getState();
+    var url = normalizeUrl(state.url);
+    var pageName = url.substring(1);
+
+    this.model.history.push(pageName);
+    this.model.setCurrent(pageName);
+
+    this.loadPage(pageName);
+};
+function PageSelectionController(){}
+
+PageSelectionController._extends(SelectionController);
+
+PageSelectionController.prototype.createModel = function(){
+    this.model = new PageSelectionModel();
+};
+
+PageSelectionController.prototype.setCurrent = function(current) {
+    if(this.model === undefined) return;
+    if(this.model.current !== current){
+        this.model.setCurrent(current);
+        this.loadPage(current);
+    }
+};
+
+//private
+PageSelectionController.prototype.loadPage = function(page)
+{
+    var params = {};
+    params.type = 'GET';
+    params.url = UrlToolbox.getBasePath() + "/" + page;
+    params.success = jQuery.proxy(this.onRequestSuccess, this);
+    params.error = jQuery.proxy(this.onRequestError, this);
+    jQuery.ajax(params);
+};
+
+PageSelectionController.prototype.onRequestSuccess = function(data)
+{
+    this.model.setCurrentPage(data);
+};
+
+PageSelectionController.prototype.onRequestError = function(jqXHR, textStatus, errorThrown)
+{
+    //console.info(errorThrown);
+};
+function PageSelectionEvent()
+{
+}
+
+PageSelectionEvent.PAGE_LOAD_START = 'pageLoadStart';
+PageSelectionEvent.PAGE_LOAD_PROGRESS = 'pageLoadProgress';
+PageSelectionEvent.PAGE_LOAD_COMPLETE = 'pageLoadComplete';
+function PageSelectionModel()
+{
+	this.history = new Array();
+}
+
+PageSelectionModel.prototype = new SelectionModel();
+
+PageSelectionModel.prototype.setCurrentPage = function(currentPage) {
+    this.currentPage = currentPage;
+    this.dispatchEvent(PageSelectionEvent.PAGE_LOAD_COMPLETE, {'currentPage' : this.currentPage});
+};
+function SWFAddressSelectionController(){
+	this.started = false;
+	this.nextvalue = undefined;
+}
+
+SWFAddressSelectionController._extends(PageSelectionController);
+
+//known bug: this function must be called early, before SWFAddressEvent.INIT is dispatched.
+SWFAddressSelectionController.prototype.init = function()
+{
+    SWFAddressSelectionController._super.init.call(this);
+	if(typeof SWFAddress != "undefined"){
+		jQuery(SWFAddress).bind(SWFAddressEvent.INIT, jQuery.proxy(this.onSWFAddressInit, this));
+	}else{
+		this.started = true;
+	}
+};
+
+SWFAddressSelectionController.prototype.setCurrent = function(current)
+{
+	if(this.started){
+		if(typeof SWFAddress != "undefined"){
+			SWFAddress.setValue(current);
+		}else{
+			this.loadPath(current);
+		}
+	}else{
+		this.nextvalue = current;
+	}
+};
+
+//private
+SWFAddressSelectionController.prototype.onSWFAddressInit = function(event)
+{
+	this.started = true;
+	jQuery(SWFAddress).bind(SWFAddressEvent.CHANGE, jQuery.proxy(this.onSWFAddressChange, this));
+	if(this.nextvalue != undefined){
+		this.setCurrent(this.nextvalue);
+		this.nextvalue = '';
+	}
+};
+
+SWFAddressSelectionController.prototype.onSWFAddressChange = function(event)
+{
+	this.model.history.push(SWFAddress.getValue());
+    this.model.setCurrent(SWFAddress.getValue());
+
+	this.setState(SWFAddressSelectionEvent.LOADING);
+	
+	this.loadPage(SWFAddress.getValue().substr(1));
+	return false;
+};
+function PreviousButtonView() {
 }
 
 PreviousButtonView._extends(AbstractView);
 
-PreviousButtonView.prototype.init = function(tag, parent)
-{
-	AbstractView.prototype.init.call(this, tag, parent);
+PreviousButtonView.prototype.destroy = function () {
+    this.unbind(this.$tag, 'click', this.onClick);
+    this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    PreviousButtonView._super.destroy.call(this);
+};
 
-	this.bind(this.tag, 'click', this.onClick);
+PreviousButtonView.prototype.init = function (tag, parent) {
+    PreviousButtonView._super.init.call(this, tag, parent);
+    this.bind(this.$tag, 'click', this.onClick);
+    this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    this.onCurrentUpdated(null);
 };
 
 //private
-PreviousButtonView.prototype.onClick = function()
-{
-	this.selectionController.goPrevious();
+PreviousButtonView.prototype.onClick = function () {
+    this.controller.goPrevious();
+};
+
+PreviousButtonView.prototype.onCurrentUpdated = function () {
+    var index = this.controller.model.scope.indexOf(this.controller.model.current);
+    if (index == 0 && !this.controller.model.looping)
+        this.$tag.hide();
+    else
+        this.$tag.show();
 };
 function SelectionController()
 {
@@ -871,10 +1179,10 @@ SelectionController.prototype.createModel = function(){
 	this.model = new SelectionModel();
 };
 
-SelectionController.prototype.goNext = function(current)
-{
-	var index = jQuery.inArray(this.model.current, this.model.scope);
-	this.model.setCurrent(this.model.scope[(index+1)%this.model.scope.length]);
+SelectionController.prototype.setLooping = function(looping){
+    if(this.model.looping !== looping){
+        this.model.setLooping(looping);
+    }
 };
 
 SelectionController.prototype.setState = function(state){
@@ -905,15 +1213,17 @@ SelectionController.prototype.setScope = function(scope){
 SelectionController.prototype.goPrevious = function()
 {
 	var scope = this.model.scope;
-	var index = jQuery.inArray(this.model.current, scope);
-	this.setCurrent(scope[(index-1+scope.length)%scope.length]);
+	var index = scope.indexOf(this.model.current);
+    if (index != 0 || (index == 0 && this.model.looping))
+	    this.setCurrent(scope[(index-1+scope.length)%scope.length]);
 };
 
 SelectionController.prototype.goNext = function()
 {
 	var scope = this.model.scope;
-	var index = jQuery.inArray(this.model.current, scope);
-	this.setCurrent(scope[(index+1)%scope.length]);
+    var index = scope.indexOf(this.model.current);
+    if (index != scope.length - 1 || (index == scope.length - 1 && this.model.looping))
+	    this.setCurrent(scope[(index+1)%scope.length]);
 };
 function SelectionEvent()
 {
@@ -925,6 +1235,7 @@ SelectionEvent.ON_SCOPE_UPDATED = "onScopeUpdated";
 SelectionEvent.ON_TOTAL_COUNT_UPDATED = "onTotalCountUpdated";
 SelectionEvent.ON_OFFSET_UPDATED = "onOffsetUpdated";
 SelectionEvent.ON_STATE_UPDATED = "onStateUpdated";
+SelectionEvent.ON_LOOPING_UPDATED = "onLoopingUpdated";
 function SelectionModel(){
 	this.scope = [];
 	this.offset = 0;
@@ -932,15 +1243,10 @@ function SelectionModel(){
 	this.over = undefined;
 	this.current = undefined;
 	this.state = undefined;
+    this.looping = true;
 }
 
-SelectionModel.prototype.destroy = function() {
-	jQuery(this).unbind(SelectionEvent.ON_CURRENT_UPDATED);
-	jQuery(this).unbind(SelectionEvent.ON_OVER_UPDATED);
-	jQuery(this).unbind(SelectionEvent.ON_SCOPE_UPDATED);
-	jQuery(this).unbind(SelectionEvent.ON_TOTAL_COUNT_UPDATED);
-	jQuery(this).unbind(SelectionEvent.ON_OFFSET_UPDATED);
-};
+SelectionModel._extends(AbstractObject);
 
 SelectionModel.prototype.setCurrent = function(current) {
 	this.current = current;
@@ -971,144 +1277,53 @@ SelectionModel.prototype.setState = function(state) {
 	this.state = state;
 	jQuery(this).trigger(SelectionEvent.ON_STATE_UPDATED, this.state);
 };
-function SWFAddressSelectionController(){
-	this.started = false;
-	this.nextvalue = undefined;
+
+SelectionModel.prototype.setLooping = function(looping){
+    this.looping = looping;
+    jQuery(this).trigger(SelectionEvent.ON_LOOPING_UPDATED, this.looping);
+};
+function StageSizeController() {
+    this.model = undefined;
 }
 
-SWFAddressSelectionController.prototype = new SelectionController();
-
-//known bug: this function must be called early, before SWFAddressEvent.INIT is dispatched.
-SWFAddressSelectionController.prototype.init = function()
-{
-	SelectionController.prototype.init.call(this);
-	if(typeof SWFAddress != "undefined"){
-		jQuery(SWFAddress).bind(SWFAddressEvent.INIT, jQuery.proxy(this.onSWFAddressInit, this));
-	}else{
-		this.started = true;
-	}
-};
-
-SWFAddressSelectionController.prototype.createModel = function(){
-	this.model = new SWFAddressSelectionModel();
-};
-
-SWFAddressSelectionController.prototype.setCurrent = function(current)
-{
-	if(this.started){
-		if(typeof SWFAddress != "undefined"){
-			SWFAddress.setValue(current);
-		}else{
-			this.loadPath(current);
-		}
-	}else{
-		this.nextvalue = current;
-	}
-};
-
-//private
-SWFAddressSelectionController.prototype.onSWFAddressInit = function(event)
-{
-	this.started = true;
-	jQuery(SWFAddress).bind(SWFAddressEvent.CHANGE, jQuery.proxy(this.onSWFAddressChange, this));
-	if(this.nextvalue != undefined){
-		this.setCurrent(this.nextvalue);
-		this.nextvalue = '';
-	}
-};
-
-SWFAddressSelectionController.prototype.onSWFAddressChange = function(event)
-{
-	this.model.history.push(SWFAddress.getValue());
-	this.setState(SWFAddressSelectionEvent.LOADING);
-	
-	this.loadPath(SWFAddress.getValue().substr(1));
-	return false;
-};
-
-SWFAddressSelectionController.prototype.loadPath = function(path)
-{
-	var params = {};
-	params.type = 'GET';
-	params.url = UrlToolbox.getBasePath() + "/" + path;
-	params.success = jQuery.proxy(this.onRequestSuccess, this);
-	params.error = jQuery.proxy(this.onRequestError, this);
-	jQuery.ajax(params);
-};
-
-SWFAddressSelectionController.prototype.onRequestSuccess = function(data)
-{
-	this.setState(SWFAddressSelectionEvent.LOADED);
-	this.model.setCurrent(data);
-};
-
-SWFAddressSelectionController.prototype.onRequestError = function(jqXHR, textStatus, errorThrown)
-{
-	//console.info(errorThrown);
-};
-function SWFAddressSelectionEvent()
-{
-}
-
-SWFAddressSelectionEvent.LOADING = 'loading';
-SWFAddressSelectionEvent.LOADED = 'loaded';
-function SWFAddressSelectionModel()
-{
-	this.history = new Array();
-}
-
-SWFAddressSelectionModel.prototype = new SelectionModel();
-
-
-function StageSizeController()
-{
-	this.model = undefined;
-}
+StageSizeController._extends(AbstractObject);
 
 StageSizeController.instance = undefined;
 
-StageSizeController.getInstance =  function()
-{
-	if (StageSizeController.instance === undefined){
-		var instance = new StageSizeController();
-		instance.init(parent);
-		StageSizeController.instance = instance;
-	}
-	return StageSizeController.instance;
+StageSizeController.getInstance = function () {
+    if (StageSizeController.instance === undefined) {
+        StageSizeController.instance = new StageSizeController();
+        StageSizeController.instance.init();
+    }
+    return StageSizeController.instance;
 };
 
-StageSizeController.prototype.createModel = function()
-{
-	this.model = new StageSizeModel();
+StageSizeController.prototype.createModel = function () {
+    this.model = new StageSizeModel();
 };
 
-StageSizeController.prototype.destroy = function()
-{
-	jQuery(window).unbind('resize', jQuery.proxy(this.onStageResize, this));
+StageSizeController.prototype.destroy = function () {
+    this.unbind(window, 'resize', this.onStageResize);
 };
 
-StageSizeController.prototype.init = function()
-{
-	this.createModel();
-	jQuery(window).resize(jQuery.proxy(this.onStageResize, this));
-	this.onStageResize(null);
+StageSizeController.prototype.init = function () {
+    this.createModel();
+    this.bind(window, 'resize', this.onStageResize);
+    this.onStageResize(null);
 };
 
-StageSizeController.prototype.onStageResize = function(event)
-{
-	this.model.setSize(new Array(jQuery(window).width(), jQuery(window).height()));
+StageSizeController.prototype.onStageResize = function (event) {
+    this.model.setSize(new Array(jQuery(window).width(), jQuery(window).height()));
 };
 
-StageSizeController.prototype.setMinimumSize = function()
-{
-	this.model.setMinimumSize(minimumSize);
-	onStageResize(null);
+StageSizeController.prototype.setMinimumSize = function (minimumSize) {
+    this.model.setMinimumSize(minimumSize);
+    this.onStageResize(null);
 };
 
-StageSizeController.prototype.setMaximumSize = function(maximumSize)
-{
-	this.model.setMaximumSize(maximumSize);
-	onStageResize(null);
+StageSizeController.prototype.setMaximumSize = function (maximumSize) {
+    this.model.setMaximumSize(maximumSize);
+    this.onStageResize(null);
 };
 function StageSizeEvent()
 {
@@ -1316,12 +1531,18 @@ AnimationHelper.prototype.onEnterFrame = function()
 {
 }
 
-Cookie.set = function(name, value, lifeExpectancy)
+//TODO: handle life expectancy parameter
+Cookie.set = function(name, value, lifeExpectancy, path)
 {
-	var expirationDate = new Date();
-	expirationDate.setDate(expirationDate.getDate() + lifeExpectancy);
-	value = escape(value) + ((lifeExpectancy == 0) ? "" : "; expires=" + expirationDate.toUTCString());
-	document.cookie = name + "=" + value;
+    if (!path) path  = '/';
+
+	var now = new Date();
+	var expirationDate = new Date(now.getDate() + lifeExpectancy);
+
+    var cookie = name + '=' + value;
+    cookie += ';path=' + path;
+
+	document.cookie = cookie;
 };
 
 Cookie.get = function(name)
@@ -1420,6 +1641,32 @@ DrupalServices.prototype.callAction = function(action, resultCallback, faultCall
 		jQuery.ajax(request);
 };
 
+DrupalServices.prototype.callOperation = function(resource, operation, resultCallback, faultCallback, data)
+{
+    if (this.basePath == undefined)
+        throw new Error('Basepath is undefined');
+
+    var method = undefined;
+    if (operation == 'create')
+        method = 'POST';
+
+    var request = new Object();
+    request.url = this.basePath + 'rest-endpoint/' + resource;
+    request.type = method;
+    request.data = JSON.stringify(data);
+    request.beforeSend = jQuery.proxy(this.beforeSend, this);
+    request.success = resultCallback;
+    request.error = faultCallback;
+
+    if (!DrupalServices.token)
+    {
+        this.postponedRequests.push(request);
+        this.requestToken();
+    }
+    else
+        jQuery.ajax(request);
+};
+
 DrupalServices.prototype.beforeSend = function (xhr) {
 	if (DrupalServices.token)
 		this.headers['X-CSRF-Token'] = DrupalServices.token;
@@ -1453,6 +1700,17 @@ DrupalServices.prototype.onServiceTokenLoad = function(data)
 		jQuery.ajax(request);
 	}
 };
+function DrupalNode() {
+    this.nid = undefined;
+    this.vid = undefined;
+    this.type = undefined;
+    this.language = undefined;
+    this.title = undefined;
+    this.uid = 0;
+    this.status = undefined;
+}
+
+DrupalNode._extends(Entity);
 function Entity()
 {
 }
@@ -1572,42 +1830,19 @@ SmartField.prototype.onBlur = function()
 	if (this.input.val() == '') 
 		this.input.val(this.defaultText);
 };
-// This class is only to be used with Drupal Lumini Share module.
-function DrupalSocialSharer()
-{
-}
-
-DrupalSocialSharer.shareFacebook = function()
-{
-	var title = Drupal.settings.share.share_admin_facebook_title;
-	var imageLink = Drupal.settings.share.share_admin_facebook_image;
-	var link = Drupal.settings.share.share_admin_facebook_url;
-	var description = Drupal.settings.share.share_admin_facebook_description;
-	SocialSharer.shareFacebook(title, imageLink, link, description);
-};
-
-DrupalSocialSharer.shareTwitter = function()
-{
-	var hashtags = Drupal.settings.share.share_admin_twitter_hashtags;
-	var url = Drupal.settings.share.share_admin_twitter_url;
-	var text = Drupal.settings.share.share_admin_twitter_title;
-	SocialSharer.shareTwitter(url, text, hashtags);
-};
-function SocialSharer()
-{
+function SocialSharer() {
 }
 
 /**
  * Shares content on Facebook.
  * @param url
- * 		The url to share.
+ *        The url to share.
  */
-SocialSharer.shareFacebook = function(url)
-{
-	url = SocialSharer.cleanParam(url);
-	var url = "https://www.facebook.com/sharer/sharer.php?u=" + url;
-	
-	SocialSharer.popup(url, 600, 368, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.shareFacebook = function (url) {
+    url = encodeURIComponent(url);
+    var url = "https://www.facebook.com/sharer/sharer.php?u=" + url;
+
+    return SocialSharer.popup(url, 600, 368, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
@@ -1616,129 +1851,117 @@ SocialSharer.shareFacebook = function(url)
  * @param media
  * @param description
  */
-SocialSharer.sharePinterest = function(url, media, description)
-{
-	url = encodeURIComponent(url);
-	media = encodeURIComponent(media);
-	var text = SocialSharer.cleanParam(description);
-	
-	var queryString = "url="+url+"&media="+media+"&description="+text;
-	var url = "//pinterest.com/pin/create/button?" + queryString;
-	SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.sharePinterest = function (url, media, description) {
+    url = encodeURIComponent(url);
+    media = encodeURIComponent(media);
+    var text = encodeURIComponent(description);
+
+    var queryString = "url=" + url + "&media=" + media + "&description=" + text;
+    var url = "//pinterest.com/pin/create/button?" + queryString;
+    return SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
  * Shares content on Twitter
  * @param url
- * 		A fully-qualified HTTP or HTTPS-based URL, URL-encoded.
+ *        A fully-qualified HTTP or HTTPS-based URL.
  * @param text
- * 		Pre-prepared, properly UTF-8 & percent-encoded Tweet body text.
+ *        UTF-8 Tweet body text.
  * @param hashtags
- * 		Add context to the pre-prepared status update by appending #hashtags. Omit the "#" symbol and separate multiple hashtags with commas.
+ *        Add context to the pre-prepared status update by appending #hashtags. Omit the "#" symbol and separate multiple hashtags with commas.
  * @param via (optional)
- * 		A screen name to associate with the tweet. Omit the "@" symbol.
+ *        A screen name to associate with the tweet. Omit the "@" symbol.
  */
-SocialSharer.shareTwitter = function(url, text, hashtags, via)
-{
-	url = encodeURIComponent(url);
-	text = SocialSharer.cleanParam(text);
-	hashtags = SocialSharer.cleanParam(hashtags);
-	
-	var queryString = "hashtags="+hashtags+"&url="+url+"&text="+text;
-	
-	if (via)
-	{
-		via = SocialSharer.cleanParam(via);
-		queryString += "&via="+via;
-	}
-	var url = "http://twitter.com/intent/tweet?" + queryString;
-	SocialSharer.popup(url, 600, 350, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.shareTwitter = function (url, text, hashtags, via) {
+    var queryString = '';
+
+    if (url) {
+        queryString += '&url=' + encodeURIComponent(url);
+    }
+    if (text) {
+        queryString += '&text=' + encodeURIComponent(text);
+    }
+    if (hashtags) {
+        hashtags = encodeURIComponent(hashtags);
+        queryString += "&hashtags=" + hashtags;
+    }
+    if (via) {
+        via = encodeURIComponent(via);
+        queryString += "&via=" + via;
+    }
+
+    var url = 'http://twitter.com/intent/tweet?' + queryString;
+    return SocialSharer.popup(url, 600, 350, 'menubar=no,scrollbars=no,statusbar=no');
 };
 
 /**
  * Uses Twitter user intent.
  * @param screen_name
- * 		Twitter user screen name.
+ *        Twitter user screen name.
  */
-SocialSharer.twitterIntentUser = function(screen_name)
-{
-	var url = "https://twitter.com/intent/user?screen_name="+screen_name;
-	SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.twitterIntentUser = function (screen_name) {
+    var url = "https://twitter.com/intent/user?screen_name=" + screen_name;
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
  * Shares a link on Tumblr.
  * @param link
- * 		The link to share.
+ *        The link to share.
  * @param name (optional)
- * 		The name of the link.
+ *        The name of the link.
  * @param description (optional)
  */
-SocialSharer.shareTumblrLink = function(link, name, description)
-{
-	var url = "http://www.tumblr.com/share/link?url=" + encodeURIComponent(link);
-	if (name)
-		url += "&name=" + encodeURIComponent(name);
-	if (description)
-		url += "&description" + encodeURIComponent(description);
-	SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.shareTumblrLink = function (link, name, description) {
+    var url = "http://www.tumblr.com/share/link?url=" + encodeURIComponent(link);
+    if (name)
+        url += "&name=" + encodeURIComponent(name);
+    if (description)
+        url += "&description" + encodeURIComponent(description);
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
  * Shares a link on LinkedIn
  * @param url
- * 		The permanent link to the article. Must be URL encoded.
+ *        The permanent link to the article. Must be URL encoded.
  * @param title
- * 		The title of the article. Must be URL encoded
+ *        The title of the article. Must be URL encoded
  * @param source
- * 		The source of the article. Must be URL encoded. Example: Wired Magazine
+ *        The source of the article. Must be URL encoded. Example: Wired Magazine
  * @param summary
- * 		A brief summary of the article. Must be URL encoded. Longer titles will be truncated gracefully with ellipses.
+ *        A brief summary of the article. Must be URL encoded. Longer titles will be truncated gracefully with ellipses.
  */
 
-SocialSharer.shareLinkedIn = function(url, title, source, summary) 
-{
-	var url = "http://www.linkedin.com/shareArticle?mini=true&url=" + encodeURIComponent(url);
-	
-	url += "&title=" + encodeURIComponent(title);
-	url += "&summary=" + encodeURIComponent(summary);
-	url += "&source=" + encodeURIComponent(source);
+SocialSharer.shareLinkedIn = function (url, title, source, summary) {
+    var url = "http://www.linkedin.com/shareArticle?mini=true&url=" + encodeURIComponent(url);
 
-	SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+    url += "&title=" + encodeURIComponent(title);
+    url += "&summary=" + encodeURIComponent(summary);
+    url += "&source=" + encodeURIComponent(source);
+
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 /**
  * Shares an url on Google plus.
  * @param url
- * 		The URL of the page to share. This value should be url encoded.
+ *        The URL of the page to share. This value should be url encoded.
  * @param h1 (optional)
- * 		The language code for the locale to use on the Google+ sharing page.
+ *        The language code for the locale to use on the Google+ sharing page.
  */
-SocialSharer.shareGoogle = function(url, h1)
-{
-	var url = "https://plus.google.com/share?url=" + encodeURIComponent(url);
-	if (h1)
-		url += "&h1=" + encodeURIComponent(h1);
-	SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
+SocialSharer.shareGoogle = function (url, h1) {
+    var url = "https://plus.google.com/share?url=" + encodeURIComponent(url);
+    if (h1)
+        url += "&h1=" + encodeURIComponent(h1);
+    return SocialSharer.popup(url, 600, 500, "menubar=no,scrollbars=no,statusbar=no");
 };
 
 //private
-SocialSharer.popup = function(url, width, height, options)
-{
-	var top = ((window.innerHeight) - height) / 2;
-	var left = ((window.innerWidth) - width) / 2;
-	window.open(url, "", "top="+top+",left="+left+",width="+width+",height="+height+","+options);
-};
-
-SocialSharer.cleanParam = function(string)
-{
-	if (string)
-	{
-		string = string.replace('#', '%23');
-		return string;
-	}
-	else
-		return "";
+SocialSharer.popup = function (url, width, height, options) {
+    var top = (screen.height - height) / 2;
+    var left = (screen.width - width) / 2;
+    return window.open(url, "", "top=" + top + ",left=" + left + ",width=" + width + ",height=" + height + "," + options);
 };
 function Transforms(){}
 
