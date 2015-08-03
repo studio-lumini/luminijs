@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/andrzej-lumini/luminijs.git"
+    "url": "git://github.com/studio-lumini/luminijs.git"
   },
   "license": "MIT",
   "ignore": [
