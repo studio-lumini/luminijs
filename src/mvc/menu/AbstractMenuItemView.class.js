@@ -8,8 +8,8 @@ AbstractMenuItemView.prototype.destroy = function()
 {
 	if (this.controller != undefined)
 	{
-		this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
-		this.unbind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
+		this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+		this.unbind(this.controller.model, SelectionEvent.ON_OVER_UPDATED, this.onOverUpdated);
 	}
 	AbstractMenuItemView._super.destroy.call(this);
 };
@@ -18,8 +18,10 @@ AbstractMenuItemView.prototype.init = function(tag, parent)
 {
 	AbstractMenuItemView._super.init.call(this, tag, parent);
 
-	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED+"."+this.namespaceId, this.onCurrentUpdated);
-	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED+"."+this.namespaceId, this.onOverUpdated);
+	this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+  this.onCurrentUpdated(null);
+	this.bind(this.controller.model, SelectionEvent.ON_OVER_UPDATED, this.onOverUpdated);
+  this.onOverUpdated(null);
 };
 
 //protected
@@ -60,7 +62,7 @@ AbstractMenuItemView.prototype.onOverUpdated = function()
 	{
 		this.hilite();
 	}
-	else if (this.current !== this.id)
+	else if (this.controller.model.current !== this.id)
 	{
 		this.unhilite();
 	}

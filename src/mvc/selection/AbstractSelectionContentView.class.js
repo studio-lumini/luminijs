@@ -28,9 +28,9 @@ AbstractSelectionContentView.prototype.onCurrentUpdated = function(){
 };
 
 AbstractSelectionContentView.prototype.show = function(){
-	this.tag.show();
+	this.$tag.show();
 };
 
 AbstractSelectionContentView.prototype.hide = function(){
-	this.tag.hide();
+	this.$tag.hide();
 };

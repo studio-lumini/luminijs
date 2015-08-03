@@ -1,6 +1,6 @@
 function GATracker()
 {
-};
+}
 
 GATracker.prototype.ua = undefined;
 GATracker.prototype.tracker = undefined;

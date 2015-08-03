@@ -9,7 +9,8 @@ function FacebookModel()
 FacebookModel.prototype.setSession = function(uid, accessToken)
 {
 	this.uid = uid;
-	this.accessToken = accessToken; 
+	this.accessToken = accessToken;
+    Cookie.set('access_token', accessToken, 1, '/');
 	jQuery(this).trigger(FacebookEvent.ON_SESSION);
 };
 

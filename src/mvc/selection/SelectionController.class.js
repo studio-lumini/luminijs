@@ -20,10 +20,10 @@ SelectionController.prototype.createModel = function(){
 	this.model = new SelectionModel();
 };
 
-SelectionController.prototype.goNext = function(current)
-{
-	var index = jQuery.inArray(this.model.current, this.model.scope);
-	this.model.setCurrent(this.model.scope[(index+1)%this.model.scope.length]);
+SelectionController.prototype.setLooping = function(looping){
+    if(this.model.looping !== looping){
+        this.model.setLooping(looping);
+    }
 };
 
 SelectionController.prototype.setState = function(state){
@@ -54,13 +54,15 @@ SelectionController.prototype.setScope = function(scope){
 SelectionController.prototype.goPrevious = function()
 {
 	var scope = this.model.scope;
-	var index = jQuery.inArray(this.model.current, scope);
-	this.setCurrent(scope[(index-1+scope.length)%scope.length]);
+	var index = scope.indexOf(this.model.current);
+    if (index != 0 || (index == 0 && this.model.looping))
+	    this.setCurrent(scope[(index-1+scope.length)%scope.length]);
 };
 
 SelectionController.prototype.goNext = function()
 {
 	var scope = this.model.scope;
-	var index = jQuery.inArray(this.model.current, scope);
-	this.setCurrent(scope[(index+1)%scope.length]);
+    var index = scope.indexOf(this.model.current);
+    if (index != scope.length - 1 || (index == scope.length - 1 && this.model.looping))
+	    this.setCurrent(scope[(index+1)%scope.length]);
 };

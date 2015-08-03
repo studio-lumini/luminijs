@@ -34,6 +34,32 @@ DrupalServices.prototype.callAction = function(action, resultCallback, faultCall
 		jQuery.ajax(request);
 };
 
+DrupalServices.prototype.callOperation = function(resource, operation, resultCallback, faultCallback, data)
+{
+    if (this.basePath == undefined)
+        throw new Error('Basepath is undefined');
+
+    var method = undefined;
+    if (operation == 'create')
+        method = 'POST';
+
+    var request = new Object();
+    request.url = this.basePath + 'rest-endpoint/' + resource;
+    request.type = method;
+    request.data = JSON.stringify(data);
+    request.beforeSend = jQuery.proxy(this.beforeSend, this);
+    request.success = resultCallback;
+    request.error = faultCallback;
+
+    if (!DrupalServices.token)
+    {
+        this.postponedRequests.push(request);
+        this.requestToken();
+    }
+    else
+        jQuery.ajax(request);
+};
+
 DrupalServices.prototype.beforeSend = function (xhr) {
 	if (DrupalServices.token)
 		this.headers['X-CSRF-Token'] = DrupalServices.token;

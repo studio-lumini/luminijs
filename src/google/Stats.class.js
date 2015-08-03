@@ -2,7 +2,7 @@ function Stats()
 {
 }
 
-Stats.gaAccounts = undefined; // define ua array
+Stats.gaAccounts = undefined; //define ua array before creating instance
 Stats.prototype.gaTrackers = undefined;
 
 Stats.instance = undefined;		

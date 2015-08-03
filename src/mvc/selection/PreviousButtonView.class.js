@@ -1,19 +1,30 @@
-function PreviousButtonView()
-{
-	this.selectionController = undefined;
+function PreviousButtonView() {
 }
 
 PreviousButtonView._extends(AbstractView);
 
-PreviousButtonView.prototype.init = function(tag, parent)
-{
-	AbstractView.prototype.init.call(this, tag, parent);
+PreviousButtonView.prototype.destroy = function () {
+    this.unbind(this.$tag, 'click', this.onClick);
+    this.unbind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    PreviousButtonView._super.destroy.call(this);
+};
 
-	this.bind(this.tag, 'click', this.onClick);
+PreviousButtonView.prototype.init = function (tag, parent) {
+    PreviousButtonView._super.init.call(this, tag, parent);
+    this.bind(this.$tag, 'click', this.onClick);
+    this.bind(this.controller.model, SelectionEvent.ON_CURRENT_UPDATED, this.onCurrentUpdated);
+    this.onCurrentUpdated(null);
 };
 
 //private
-PreviousButtonView.prototype.onClick = function()
-{
-	this.selectionController.goPrevious();
+PreviousButtonView.prototype.onClick = function () {
+    this.controller.goPrevious();
+};
+
+PreviousButtonView.prototype.onCurrentUpdated = function () {
+    var index = this.controller.model.scope.indexOf(this.controller.model.current);
+    if (index == 0 && !this.controller.model.looping)
+        this.$tag.hide();
+    else
+        this.$tag.show();
 };
